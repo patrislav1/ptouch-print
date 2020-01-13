@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(ptouch_print C)
+project(ptouch-print C)
 
 # Configure CMake
 set(CMAKE_C_STANDARD 11)
@@ -16,9 +16,9 @@ pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 execute_process(COMMAND bash "${CMAKE_CURRENT_LIST_DIR}/build-aux/git-version-gen" OUTPUT_VARIABLE VERSION)
 
 # Configure project executable
-add_executable(ptouch_print)
+add_executable(ptouch-print)
 
-target_sources(ptouch_print
+target_sources(ptouch-print
     PUBLIC
         include/ptouch.h
     PRIVATE
@@ -28,7 +28,7 @@ target_sources(ptouch_print
 )
 
 # Configure compiler
-target_compile_options(ptouch_print
+target_compile_options(ptouch-print
     PRIVATE
         -g
         -Wall
@@ -38,7 +38,7 @@ target_compile_options(ptouch_print
         -fPIC
 )
 
-target_compile_definitions(ptouch_print
+target_compile_definitions(ptouch-print
     PRIVATE
         LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}"
         USING_CMAKE=1
@@ -47,7 +47,7 @@ target_compile_definitions(ptouch_print
 
 )
 
-target_include_directories(ptouch_print
+target_include_directories(ptouch-print
     PRIVATE
         include
         ${GD_INCLUDE_DIR}
@@ -55,7 +55,7 @@ target_include_directories(ptouch_print
 )
 
 # Configure linker
-target_link_libraries(ptouch_print
+target_link_libraries(ptouch-print
         ${GD_LIBRARIES}
         ${LIBUSB_LIBRARIES}
 )

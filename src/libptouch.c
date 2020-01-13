@@ -26,7 +26,7 @@
 #include <sys/stat.h>	/* open() */
 #include <fcntl.h>	/* open() */
 #include <time.h>	/* nanosleep(), struct timespec */
-#include "config.h"
+//#include "config.h"
 #include "gettext.h"	/* gettext(), ngettext() */
 #include "ptouch.h"
 

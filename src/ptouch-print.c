@@ -25,7 +25,8 @@
 #include <sys/stat.h>	/* open() */
 #include <fcntl.h>	/* open() */
 #include <gd.h>
-#include "config.h"
+//#include "config.h"
+#include <locale.h>
 #include "gettext.h"	/* gettext(), ngettext() */
 #include "ptouch.h"
 

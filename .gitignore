@@ -39,5 +39,8 @@ src/.dirstamp
 ABOUT-NLS
 INSTALL
 
+# created by cmake
+/build
+
 # Binaries
 ptouch-print

@@ -8,6 +8,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # Configure required dependencies
 find_package(Gettext REQUIRED)
 find_package(GD REQUIRED)
+find_package(Git REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Intl REQUIRED)
 
@@ -63,3 +64,11 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_BINARY_DIR}/_version.h
 	COMMAND ${CMAKE_COMMAND} -P
 		${CMAKE_CURRENT_SOURCE_DIR}/cmake/gitversion.cmake)
+
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_PREFIX "/usr")
+
+install(TARGETS ptouch-print
+)
+
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ptouch-print.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)

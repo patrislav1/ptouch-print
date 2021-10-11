@@ -25,7 +25,10 @@
 #include <sys/stat.h>	/* open() */
 #include <fcntl.h>	/* open() */
 #include <gd.h>
-#include "config.h"
+#include <libintl.h>
+#include <locale.h>	/* LC_ALL */
+
+#include "version.h"
 #include "gettext.h"	/* gettext(), ngettext() */
 #include "ptouch.h"
 
@@ -467,8 +470,8 @@ int main(int argc, char *argv[])
 	ptouch_dev ptdev=NULL;
 
 	setlocale(LC_ALL, "");
-	bindtextdomain(PACKAGE, LOCALEDIR);
-	textdomain(PACKAGE);
+	bindtextdomain("ptouch-print", "/usr/share/locale/");
+	textdomain("ptouch-print");
 	i=parse_args(argc, argv);
 	if (i != argc) {
 		usage(argv[0]);

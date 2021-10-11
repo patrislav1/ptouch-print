@@ -30,6 +30,9 @@ else()
 	string(STRIP "${GIT_COMMITS}" GIT_COMMITS)
 	string(STRIP "${GIT_DIFF}" GIT_DIFF)
 	string(STRIP "${GIT_TAG}" GIT_TAG)
+	if (${GIT_COMMITS} STREQUAL ${GIT_TAG})
+		set(GIT_COMMITS "0")
+	endif()
 endif()
 
 set(VERSION "const char* GIT_BRANCH=\"${GIT_BRANCH}\";

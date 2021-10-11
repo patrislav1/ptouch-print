@@ -1,7 +1,7 @@
 /*
 	libptouch - functions to help accessing a brother ptouch
 
-	Copyright (C) 2013-2019 Dominic Radermacher <blip@mockmoon-cybernetics.ch>
+	Copyright (C) 2013-2021 Dominic Radermacher <dominic@familie-radermacher.ch>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License version 3 as
@@ -26,7 +26,7 @@
 #include <sys/stat.h>	/* open() */
 #include <fcntl.h>	/* open() */
 #include <time.h>	/* nanosleep(), struct timespec */
-//#include "config.h"
+
 #include "gettext.h"	/* gettext(), ngettext() */
 #include "ptouch.h"
 
@@ -34,6 +34,7 @@
 
 /* Print area width in 180 DPI pixels */
 struct _pt_tape_info tape_info[]= {
+	{ 4, 24, 0.5},	/* 3.5 mm tape */
 	{ 6, 32, 1.0},	/* 6 mm tape */
 	{ 9, 52, 1.0},	/* 9 mm tape */
 	{12, 76, 2.0},	/* 12 mm tape */
@@ -45,6 +46,9 @@ struct _pt_tape_info tape_info[]= {
 
 struct _pt_dev_info ptdevs[] = {
 	{0x04f9, 0x2007, "PT-2420PC", 128, 180, FLAG_RASTER_PACKBITS},	/* 180dpi, 128px, maximum tape width 24mm, must send TIFF compressed pixel data */
+	{0x04f9, 0x2011, "PT-2450PC", 128, 180, FLAG_RASTER_PACKBITS},
+	{0x04f9, 0x2019, "PT-1950", 128, 180, FLAG_RASTER_PACKBITS},	/* 180dpi, apparently 112px printhead ?, maximum tape width 18mm - unconfirmed if it works */
+	{0x04f9, 0x201f, "PT-2700", 128, 180, FLAG_NONE},
 	{0x04f9, 0x202c, "PT-1230PC", 128, 180, FLAG_NONE},		/* 180dpi, supports tapes up to 12mm - I don't know how much pixels it can print! */
 	/* Notes about the PT-1230PC: While it is true that this printer supports
 	   max 12mm tapes, it apparently expects > 76px data - the first 32px
@@ -55,17 +59,23 @@ struct _pt_dev_info ptdevs[] = {
 	{0x04f9, 0x2041, "PT-2730", 128, 180, FLAG_NONE},		/* 180dpi, maximum 128px, max tape width 24mm - reported to work with some quirks */
 	/* Notes about the PT-2730: was reported to need 48px whitespace
 	   within png-images before content is actually printed - can not check this */
+	{0x04f9, 0x205e, "PT-H500", 128, 180, FLAG_RASTER_PACKBITS},
+	/* Note about the PT-H500: was reported by Eike with the remark that
+	   it might need some trailing padding */
 	{0x04f9, 0x205f, "PT-E500", 128, 180, FLAG_RASTER_PACKBITS},
 	/* Note about the PT-E500: was reported by Jesse Becker with the
 	   remark that it also needs some padding (white pixels) */
 	{0x04f9, 0x2061, "PT-P700", 128, 180, FLAG_RASTER_PACKBITS|FLAG_P700_INIT},
+	{0x04f9, 0x2062, "PT-P750W", 128, 180, FLAG_RASTER_PACKBITS|FLAG_P700_INIT},
 	{0x04f9, 0x2064, "PT-P700 (PLite Mode)", 128, 180, FLAG_PLITE},
-	{0x04f9, 0x2073, "PT-D450", 128, 180, FLAG_RASTER_PACKBITS},
+	{0x04f9, 0x2065, "PT-P750W (PLite Mode)", 128, 180, FLAG_PLITE},
+	{0x04f9, 0x2073, "PT-D450", 128, 180, FLAG_USE_INFO_CMD},
 	/* Notes about the PT-D450: I'm unsure if print width really is 128px */
 	{0x04f9, 0x2074, "PT-D600", 128, 180, FLAG_RASTER_PACKBITS},
 	/* PT-D600 was reported to work, but with some quirks (premature
 	   cutting of tape, printing maximum of 73mm length) */
 	//{0x04f9, 0x200d, "PT-3600", 384, 360, FLAG_RASTER_PACKBITS},
+	{0x04f9, 0x20af, "PT-P710BT", 128, 180, FLAG_RASTER_PACKBITS},
 	{0,0,"",0,0,0}
 };
 
@@ -184,6 +194,27 @@ int ptouch_enable_packbits(ptouch_dev ptdev)
 {				/* 4D 00 = disable compression */
 	char cmd[] = "M\x02";	/* 4D 02 = enable packbits compression mode */
 	return ptouch_send(ptdev, (uint8_t *)cmd, strlen(cmd));
+}
+
+/* print information command */
+int ptouch_info_cmd(ptouch_dev ptdev, int size_x)
+{
+	/* 1B 69 7A {n1} {n2} {n3} {n4} {n5} {n6} {n7} {n8} {n9} {n10} */
+	uint8_t cmd[] = "\x1b\x69\x7a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+	/* {n3}: Media width (mm)
+	   {n4}: Media length (mm)
+	   For the media of width 24 mm, specify as n3 = 18h and n4 = 00h.
+	   n4 is normally 00h, regardless of the paper length. */
+	cmd[5] = ptdev->status->media_width;
+
+	/* {n5} -{n8}: Raster number
+	   n8*256*256*256 + n7*256*256 + n6*256 + n5 */
+	cmd[7] = (uint8_t) size_x & 0xff;
+	cmd[8] = (uint8_t) (size_x >> 8) & 0xff;
+	cmd[9] = (uint8_t) (size_x >> 16) & 0xff;
+	cmd[10] = (uint8_t) (size_x >> 24) & 0xff;
+	return ptouch_send(ptdev, cmd, sizeof(cmd)-1);
 }
 
 int ptouch_rasterstart(ptouch_dev ptdev)
@@ -321,4 +352,15 @@ int ptouch_sendraster(ptouch_dev ptdev, uint8_t *data, size_t len)
 		rc = ptouch_send(ptdev, buf, len + 3);
 	}
 	return rc;
+}
+
+void ptouch_list_supported()
+{
+	printf("Supported printers (some might have quirks)\n");
+	for (int i=0; ptdevs[i].vid > 0; i++) {
+		if ((ptdevs[i].flags & FLAG_PLITE) != FLAG_PLITE) {
+			printf("\t%s\n", ptdevs[i].name);
+		}
+	}
+	return;
 }

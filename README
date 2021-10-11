@@ -1,24 +1,22 @@
 About:
 
-ptouch is a command line tool to print labels on Brother P-Touch
+ptouch-print is a command line tool to print labels on Brother P-Touch
 printers on Linux.
 
 There is no need to install the printer via CUPS, the printer is accessed
 directly via libusb.
 
-The tool was written for and tested with the PT-2430PC, but it should also
-work with the PT-1230PC (untested so far).
+The tool was written for and tested with the PT-2430PC, but meanwhile is also
+used with others (see "ptouch-print --list-supported")
 Maybe others work too (please report USB VID and PID so I can include support
 for further models, too).
 
 Further info can be found at:
-https://mockmoon-cybernetics.ch/computer/p-touch2430pc/
+https://familie-radermacher.ch/dominic/projekte/ptouch-print/
 
 Compile instructions:
 
-./autogen.sh
-./configure --prefix=/usr
-make
+./build.sh
 
 Note:
 

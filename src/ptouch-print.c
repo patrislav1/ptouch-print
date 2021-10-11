@@ -1,7 +1,7 @@
 /*
 	ptouch-print - Print labels with images or text on a Brother P-Touch
 
-	Copyright (C) 2015-2019 Dominic Radermacher <blip@mockmoon-cybernetics.ch>
+	Copyright (C) 2015-2021 Dominic Radermacher <dominic@familie-radermacher.ch>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License version 3 as
@@ -25,8 +25,10 @@
 #include <sys/stat.h>	/* open() */
 #include <fcntl.h>	/* open() */
 #include <gd.h>
-//#include "config.h"
-#include <locale.h>
+#include <libintl.h>
+#include <locale.h>	/* LC_ALL */
+
+#include "version.h"
 #include "gettext.h"	/* gettext(), ngettext() */
 #include "ptouch.h"
 
@@ -98,6 +100,12 @@ int print_img(ptouch_dev ptdev, gdImage *im)
 		printf(_("ptouch_rasterstart() failed\n"));
 		return -1;
 	}
+	if ((ptdev->devinfo->flags & FLAG_USE_INFO_CMD) == FLAG_USE_INFO_CMD) {
+		ptouch_info_cmd(ptdev, gdImageSX(im));
+		if (debug) {
+			printf(_("send print information command\n"));
+		}
+	}
 	for (k=0; k<gdImageSX(im); k+=1) {
 		memset(rasterline, 0, sizeof(rasterline));
 		for (i=0; i<gdImageSY(im); i+=1) {
@@ -127,15 +135,24 @@ gdImage *image_load(const char *file)
 	FILE *f;
 	gdImage *img=NULL;
 
-	if ((f = fopen(file, "rb")) == NULL) {	/* error cant open file */
+	if (!strcmp(file, "-")) {
+		f = stdin;
+	} else {
+		f = fopen(file, "rb");
+	}
+	if (f  == NULL) {	/* error could not open file */
 		return NULL;
 	}
-	if (fread(d, sizeof(d), 1, f) != 1) {
-		return NULL;
-	}
-	rewind(f);
-	if (memcmp(d, png, 8) == 0) {
+	if (fseek(f, 0L, SEEK_SET)) {	/* file is not seekable. eg 'stdin' */
 		img=gdImageCreateFromPng(f);
+	} else {
+		if (fread(d, sizeof(d), 1, f) != 1) {
+			return NULL;
+		}
+		rewind(f);
+		if (memcmp(d, png, 8) == 0) {
+			img=gdImageCreateFromPng(f);
+		}
 	}
 	fclose(f);
 	return img;
@@ -361,17 +378,21 @@ void usage(char *progname)
 {
 	printf("usage: %s [options] <print-command(s)>\n", progname);
 	printf("options:\n");
+	printf("\t--debug\t\t\tenable debug output\n");
 	printf("\t--font <file>\t\tuse font <file> or <name>\n");
+	printf("\t--fontsize <size>\tManually set fontsize\n");
 	printf("\t--writepng <file>\tinstead of printing, write output to png file\n");
-	printf("\t\t\t\tThis currently works only when using\n\t\t\t\tEXACTLY ONE --text statement\n");
-	printf("print-commands:\n");
+	printf("print commands:\n");
 	printf("\t--image <file>\t\tprint the given image which must be a 2 color\n");
 	printf("\t\t\t\t(black/white) png\n");
 	printf("\t--text <text>\t\tPrint 1-4 lines of text.\n");
 	printf("\t\t\t\tIf the text contains spaces, use quotation marks\n\t\t\t\taround it.\n");
 	printf("\t--cutmark\t\tPrint a mark where the tape should be cut\n");
-	printf("\t--fontsize\t\tManually set fontsize\n");
 	printf("\t--pad <n>\t\tAdd n pixels padding (blank tape)\n");
+	printf("other commands:\n");
+	printf("\t--version\t\tshow version info (required for bug report)\n");
+	printf("\t--info\t\t\tshow info about detected tape\n");
+	printf("\t--list-supported\tshow printers supported by this version\n");
 	exit(1);
 }
 
@@ -430,6 +451,9 @@ int parse_args(int argc, char **argv)
 		} else if (strcmp(&argv[i][1], "-version") == 0) {
 			printf(_("ptouch-print version %s by Dominic Radermacher\n"), VERSION);
 			exit(0);
+		} else if (strcmp(&argv[i][1], "-list-supported") == 0) {
+			ptouch_list_supported();
+			exit(0);
 		} else {
 			usage(argv[0]);
 		}
@@ -446,8 +470,8 @@ int main(int argc, char *argv[])
 	ptouch_dev ptdev=NULL;
 
 	setlocale(LC_ALL, "");
-	bindtextdomain(PACKAGE, LOCALEDIR);
-	textdomain(PACKAGE);
+	bindtextdomain("ptouch-print", "/usr/share/locale/");
+	textdomain("ptouch-print");
 	i=parse_args(argc, argv);
 	if (i != argc) {
 		usage(argv[0]);

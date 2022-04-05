@@ -527,6 +527,9 @@ int main(int argc, char *argv[])
 			printf("tape color = %02x\n", ptdev->status->tape_color);
 			printf("text color = %02x\n", ptdev->status->text_color);
 			printf("error = %04x\n", ptdev->status->error);
+			if (debug) {
+				ptouch_rawstatus(ptdev->status);
+			}
 			exit(0);
 		} else if (strcmp(&argv[i][1], "-image") == 0) {
 			if ((im=image_load(argv[++i])) == NULL) {

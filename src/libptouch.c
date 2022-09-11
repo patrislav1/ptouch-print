@@ -186,7 +186,11 @@ int ptouch_send(ptouch_dev ptdev, uint8_t *data, size_t len)
 
 int ptouch_init(ptouch_dev ptdev)
 {
-	char cmd[]="\x1b\x40";		/* 1B 40 = ESC @ = INIT */
+	/* first invalidate, then send init command */
+	uint8_t cmd[102];
+	memset(cmd, 0, 100);
+	cmd[100] = 0x1b;	/* ESC */
+	cmd[101] = 0x40;	/* @ */
 	return ptouch_send(ptdev, (uint8_t *)cmd, strlen(cmd));
 }
 

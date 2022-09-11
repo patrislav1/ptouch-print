@@ -364,3 +364,73 @@ void ptouch_list_supported()
 	}
 	return;
 }
+
+const char* pt_mediatype(const uint8_t media_type)
+{
+	switch (media_type) {
+		case 0x00: return "No media"; break;
+		case 0x01: return "Laminated tape"; break;
+		case 0x03: return "Non-laminated tape"; break;
+		case 0x04: return "Fabric tape"; break;
+		case 0x11: return "Heat-shrink tube"; break;
+		case 0x13: return "Fle tape"; break;
+		case 0x14: return "Flexible ID tape"; break;
+		case 0x15: return "Satin tape"; break;
+		case 0xff: return "Incompatible tape"; break;
+		default: return "unknown";
+	}
+}
+
+const char* pt_tapecolor(const uint8_t tape_color)
+{
+	switch (tape_color) {
+		case 0x01: return "White"; break;
+		case 0x02: return "Other"; break;
+		case 0x03: return "Clear"; break;
+		case 0x04: return "Red"; break;
+		case 0x05: return "Blue"; break;
+		case 0x06: return "Yellow"; break;
+		case 0x07: return "Green"; break;
+		case 0x08: return "Black"; break;
+		case 0x09: return "Clear"; break;
+		case 0x20: return "Matte White"; break;
+		case 0x21: return "Matte Clear"; break;
+		case 0x22: return "Matte Silver"; break;
+		case 0x23: return "Satin Gold"; break;
+		case 0x24: return "Satin Silver"; break;
+		case 0x30: return "Blue (TZe-5[345]5)"; break;
+		case 0x31: return "Red (TZe-435)"; break;
+		case 0x40: return "Fluorescent Orange"; break;
+		case 0x41: return "Fluorescent Yellow"; break;
+		case 0x50: return "Berry Pink (TZe-MQP35)"; break;
+		case 0x51: return "Light Gray (TZe-MQL35)"; break;
+		case 0x52: return "Lime Green (TZe-MQG35)"; break;
+		case 0x60: return "Yellow"; break;
+		case 0x61: return "Pink"; break;
+		case 0x62: return "Blue"; break;
+		case 0x70: return "Heat-shrink Tube"; break;
+		case 0x90: return "White(Flex. ID)"; break;
+		case 0x91: return "Yellow(Flex. ID)"; break;
+		case 0xf0: return "Cleaning"; break;
+		case 0xf1: return "Stencil"; break;
+		case 0xff: return "Incompatible"; break;
+		default: return "unknown";
+	}
+}
+
+const char* pt_textcolor(const uint8_t text_color)
+{
+	switch (text_color) {
+		case 0x01: return "White"; break;
+		case 0x02: return "Other"; break;
+		case 0x04: return "Red"; break;
+		case 0x05: return "Blue"; break;
+		case 0x08: return "Black"; break;
+		case 0x0a: return "Gold"; break;
+		case 0x62: return "Blue(F)"; break;
+		case 0xf0: return "Cleaning"; break;
+		case 0xf1: return "Stencil"; break;
+		case 0xff: return "Incompatible"; break;
+		default: return "unknown";
+	}
+}

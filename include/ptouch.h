@@ -107,3 +107,7 @@ int ptouch_info_cmd(ptouch_dev ptdev, int size_x);
 int ptouch_rasterstart(ptouch_dev ptdev);
 int ptouch_sendraster(ptouch_dev ptdev, uint8_t *data, size_t len);
 void ptouch_list_supported();
+
+const char* pt_mediatype(unsigned char media_type);
+const char* pt_tapecolor(unsigned char tape_color);
+const char* pt_textcolor(unsigned char text_color);

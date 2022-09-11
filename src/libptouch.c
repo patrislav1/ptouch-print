@@ -79,8 +79,6 @@ struct _pt_dev_info ptdevs[] = {
 	{0,0,"",0,0,0}
 };
 
-void ptouch_rawstatus(uint8_t raw[32]);
-
 int ptouch_open(ptouch_dev *ptdev)
 {
 	libusb_device **devs;
@@ -191,7 +189,7 @@ int ptouch_init(ptouch_dev ptdev)
 	memset(cmd, 0, 100);
 	cmd[100] = 0x1b;	/* ESC */
 	cmd[101] = 0x40;	/* @ */
-	return ptouch_send(ptdev, (uint8_t *)cmd, strlen(cmd));
+	return ptouch_send(ptdev, (uint8_t *)cmd, sizeof(cmd));
 }
 
 int ptouch_enable_packbits(ptouch_dev ptdev)

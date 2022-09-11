@@ -92,7 +92,7 @@ int print_img(ptouch_dev ptdev, gdImage *im)
 	//offset=64-(gdImageSY(im)/2);	/* always print centered  */
 	size_t max_pixels=ptouch_get_max_width(ptdev);
 	offset=((int)max_pixels / 2)-(gdImageSY(im)/2);	/* always print centered  */
-	printf("max_pixels=%d, offset=%d\n", max_pixels, offset);
+	printf("max_pixels=%ld, offset=%d\n", max_pixels, offset);
 	if ((ptdev->devinfo->flags & FLAG_RASTER_PACKBITS) == FLAG_RASTER_PACKBITS) {
 		if (debug) {
 			printf("enable PackBits mode\n");
@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
 			printf("text color = %02x (%s)\n", ptdev->status->text_color, pt_textcolor(ptdev->status->text_color));
 			printf("error = %04x\n", ptdev->status->error);
 			if (debug) {
-				ptouch_rawstatus(ptdev->status);
+				ptouch_rawstatus((uint8_t *)ptdev->status);
 			}
 			exit(0);
 		} else if (strcmp(&argv[i][1], "-image") == 0) {

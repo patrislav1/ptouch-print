@@ -96,7 +96,7 @@ int ptouch_send(ptouch_dev ptdev, uint8_t *data, size_t len);
 int ptouch_init(ptouch_dev ptdev);
 int ptouch_lf(ptouch_dev ptdev);
 int ptouch_ff(ptouch_dev ptdev);
-size_t ptouch_get_max_pixel_width(ptouch_dev ptdev);
+size_t ptouch_get_max_width(ptouch_dev ptdev);
 size_t ptouch_get_tape_width(ptouch_dev ptdev);
 int ptouch_page_flags(ptouch_dev ptdev, uint8_t page_flags);
 int ptouch_eject(ptouch_dev ptdev);
@@ -106,6 +106,7 @@ int ptouch_enable_packbits(ptouch_dev ptdev);
 int ptouch_info_cmd(ptouch_dev ptdev, int size_x);
 int ptouch_rasterstart(ptouch_dev ptdev);
 int ptouch_sendraster(ptouch_dev ptdev, uint8_t *data, size_t len);
+void ptouch_rawstatus(uint8_t raw[32]);
 void ptouch_list_supported();
 
 const char* pt_mediatype(unsigned char media_type);

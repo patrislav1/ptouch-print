@@ -46,14 +46,15 @@ target_include_directories(ptouch-print PUBLIC
 	${GD_INCLUDE_DIR}
 	${LIBUSB_INCLUDE_DIRS}
 	${CMAKE_BINARY_DIR}
-	${Libintl_INCLUDE_DIRS}
+	${Intl_INCLUDE_DIRS}
 )
 
 # Configure linker
 target_link_libraries(ptouch-print
 	${GD_LIBRARIES}
 	${LIBUSB_LIBRARIES}
-	${Libintl_LIBRARY}
+	${LIBUSB_LINK_LIBRARIES}
+	${Intl_LIBRARY}
 )
 
 # Add a custom command that produces version.h, plus a dummy output that's

@@ -1,3 +1,6 @@
+# HB9HEI - required for autogen version.h
+find_package(Git REQUIRED)
+
 # Get commit hash
 execute_process(COMMAND git log --format='%H' -n 1
 	OUTPUT_VARIABLE GIT_COMMIT_HASH
@@ -35,11 +38,11 @@ else()
 	endif()
 endif()
 
-set(VERSION "const char* GIT_BRANCH=\"${GIT_BRANCH}\";
-const char* GIT_COMMIT=\"${GIT_COMMIT_SHORT}\";
-const char* GIT_COMMITS=\"${GIT_COMMITS}\";
-const char* GIT_TAG=\"${GIT_TAG}\";
-const char* VERSION=\"${GIT_TAG}-r${GIT_COMMITS}-g${GIT_COMMIT_SHORT}${GIT_DIFF}\";
+set(VERSION "#define GIT_BRANCH \"${GIT_BRANCH}\"
+#define GIT_COMMIT \"${GIT_COMMIT_SHORT}\"
+#define GIT_COMMITS \"${GIT_COMMITS}\"
+#define GIT_TAG \"${GIT_TAG}\"
+#define VERSION \"${GIT_TAG}.r${GIT_COMMITS}.g${GIT_COMMIT_SHORT}${GIT_DIFF}\"
 ")
 
 message(DEBUG "Generated Version: \"${VERSION}\"")

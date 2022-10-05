@@ -201,7 +201,7 @@ int find_fontsize(int want_px, char *font, char *text)
 	int save=0;
 	int brect[8];
 
-	for (int i=4; ; i++) {
+	for (int i=4; ; ++i) {
 		if (gdImageStringFT(NULL, &brect[0], -1, font, i, 0.0, 0, 0, text) != NULL) {
 			break;
 		}
@@ -244,7 +244,7 @@ gdImage *render_text(char *font, char *line[], int lines, int tape_width)
 		fsz=fontsize;
 		printf(_("setting font size=%i\n"), fsz);
 	} else {
-		for (i=0; i<lines; i++) {
+		for (i=0; i<lines; ++i) {
 			if ((tmp=find_fontsize(tape_width/lines, font, line[i])) < 0) {
 				printf(_("could not estimate needed font size\n"));
 				return NULL;
@@ -255,7 +255,7 @@ gdImage *render_text(char *font, char *line[], int lines, int tape_width)
 		}
 		printf(_("choosing font size=%i\n"), fsz);
 	}
-	for(i=0; i<lines; i++) {
+	for(i=0; i<lines; ++i) {
 		tmp=needed_width(line[i], font_file, fsz);
 		if (tmp > x) {
 			x=tmp;
@@ -267,7 +267,7 @@ gdImage *render_text(char *font, char *line[], int lines, int tape_width)
 	/* gdImageStringFT(im,brect,fg,fontlist,size,angle,x,y,string) */
 	/* find max needed line height for ALL lines */
 	int max_height=0;
-	for (i=0; i<lines; i++) {
+	for (i=0; i<lines; ++i) {
 		if ((p=gdImageStringFT(NULL, &brect[0], -black, font, fsz, 0.0, 0, 0, line[i])) != NULL) {
 			printf(_("error in gdImageStringFT: %s\n"), p);
 		}
@@ -287,7 +287,7 @@ gdImage *render_text(char *font, char *line[], int lines, int tape_width)
 	/* calculate unused pixels */
 	int unused_px = tape_width - (max_height * lines);
 	/* now render lines */
-	for (i=0; i<lines; i++) {
+	for (i=0; i<lines; ++i) {
 		int ofs=get_baselineoffset(line[i], font_file, fsz);
 		//int pos=((i)*(tape_width/(lines)))+(max_height)-ofs-1;
 		int pos=((i)*(tape_width/(lines)))+(max_height)-ofs;
@@ -412,7 +412,7 @@ int parse_args(int argc, char **argv)
 {
 	int lines, i;
 
-	for (i=1; i<argc; i++) {
+	for (i=1; i<argc; ++i) {
 		if (*argv[i] != '-') {
 			break;
 		}
@@ -424,7 +424,7 @@ int parse_args(int argc, char **argv)
 			}
 		} else if (strcmp(&argv[i][1], "-fontsize") == 0) {
 			if (i+1<argc) {
-				i++;
+				++i;
 			} else {
 				usage(argv[0]);
 			}
@@ -442,22 +442,22 @@ int parse_args(int argc, char **argv)
 			continue;	/* not done here */
 		} else if (strcmp(&argv[i][1], "-image") == 0) {
 			if (i+1<argc) {
-				i++;
+				++i;
 			} else {
 				usage(argv[0]);
 			}
 		} else if (strcmp(&argv[i][1], "-pad") == 0) {
 			if (i+1<argc) {
-				i++;
+				++i;
 			} else {
 				usage(argv[0]);
 			}
 		} else if (strcmp(&argv[i][1], "-text") == 0) {
-			for (lines=0; (lines < MAX_LINES) && (i < argc); lines++) {
+			for (lines=0; (lines < MAX_LINES) && (i < argc); ++lines) {
 				if ((i+1 >= argc) || (argv[i+1][0] == '-')) {
 					break;
 				}
-				i++;
+				++i;
 			}
 		} else if (strcmp(&argv[i][1], "-version") == 0) {
 			printf(_("ptouch-print version %s by Dominic Radermacher\n"), VERSION);
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	tape_width=ptouch_get_tape_width(ptdev);
-	for (i=1; i<argc; i++) {
+	for (i=1; i<argc; ++i) {
 		if (*argv[i] != '-') {
 			break;
 		}
@@ -540,11 +540,11 @@ int main(int argc, char *argv[])
 			gdImageDestroy(im);
 			im = NULL;
 		} else if (strcmp(&argv[i][1], "-text") == 0) {
-			for (lines=0; (lines < MAX_LINES) && (i < argc); lines++) {
+			for (lines=0; (lines < MAX_LINES) && (i < argc); ++lines) {
 				if ((i+1 >= argc) || (argv[i+1][0] == '-')) {
 					break;
 				}
-				i++;
+				++i;
 				line[lines]=argv[i];
 			}
 			if (lines) {

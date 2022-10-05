@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
+
 project(ptouch-print C)
 
-# Configure CMake
-set(CMAKE_C_STANDARD 11)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+set(CMAKE_C_STANDARD 11)
 
 # Configure required dependencies
 find_package(Gettext REQUIRED)
@@ -15,18 +16,41 @@ find_package(Intl REQUIRED)
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
 # Configure project executable
-add_executable(ptouch-print)
+add_executable(${PROJECT_NAME})
 
-target_sources(ptouch-print PUBLIC
-	version.h
+target_include_directories(${PROJECT_NAME} PUBLIC
+	${CMAKE_BINARY_DIR}	# HB9HEI - location of generated version.h
+	${CMAKE_SOURCE_DIR}/include
+	${GD_INCLUDE_DIR}
+	${LIBUSB_INCLUDE_DIRS}
+	${Intl_INCLUDE_DIRS}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	${GD_LIBRARIES}
+	${LIBUSB_LIBRARIES}
+	${LIBUSB_LINK_LIBRARIES}
+	${Intl_LIBRARY}
+)
+
+target_sources(${PROJECT_NAME} PRIVATE
 	include/ptouch.h
 	include/gettext.h
 	src/libptouch.c
 	src/ptouch-print.c
 )
 
-# Configure compiler
-target_compile_options(ptouch-print PUBLIC
+add_dependencies(${PROJECT_NAME}
+	git-version
+)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+	LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}"
+	USING_CMAKE=1
+	PACKAGE="ptouch-print"
+)
+
+target_compile_options(${PROJECT_NAME} PUBLIC
 	-g
 	-Wall
 	-Wextra
@@ -35,36 +59,10 @@ target_compile_options(ptouch-print PUBLIC
 	-fPIC
 )
 
-target_compile_definitions(ptouch-print PUBLIC
-	LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}"
-	USING_CMAKE=1
-	PACKAGE="ptouch-print"
+# HB9HEI - custom target that produces version.h	(req. cmake 3.0)
+add_custom_target(git-version ALL
+	${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gitversion.cmake
 )
-
-target_include_directories(ptouch-print PUBLIC
-	include
-	${GD_INCLUDE_DIR}
-	${LIBUSB_INCLUDE_DIRS}
-	${CMAKE_BINARY_DIR}
-	${Intl_INCLUDE_DIRS}
-)
-
-# Configure linker
-target_link_libraries(ptouch-print
-	${GD_LIBRARIES}
-	${LIBUSB_LIBRARIES}
-	${LIBUSB_LINK_LIBRARIES}
-	${Intl_LIBRARY}
-)
-
-# Add a custom command that produces version.h, plus a dummy output that's
-# not produced, in order to force gitversion.cmake to always be re-run
-# before the build
-ADD_CUSTOM_COMMAND(
-	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-		${CMAKE_BINARY_DIR}/_version.h
-	COMMAND ${CMAKE_COMMAND} -P
-		${CMAKE_CURRENT_SOURCE_DIR}/cmake/gitversion.cmake)
 
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_PREFIX "/usr")

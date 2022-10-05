@@ -114,7 +114,7 @@ int ptouch_open(ptouch_dev *ptdev)
 			libusb_free_device_list(devs, 1);
 			return -1;
 		}
-		for (int k=0; ptdevs[k].vid > 0; k++) {
+		for (int k=0; ptdevs[k].vid > 0; ++k) {
 			if ((desc.idVendor == ptdevs[k].vid) && (desc.idProduct == ptdevs[k].pid) && (ptdevs[k].flags >= 0)) {
 				fprintf(stderr, _("%s found on USB bus %d, device %d\n"),
 					ptdevs[k].name,
@@ -255,7 +255,7 @@ int ptouch_eject(ptouch_dev ptdev)
 void ptouch_rawstatus(uint8_t raw[32])
 {
 	fprintf(stderr, _("debug: dumping raw status bytes\n"));
-	for (int i=0; i<32; i++) {
+	for (int i=0; i<32; ++i) {
 		fprintf(stderr, "%02x ", raw[i]);
 		if (((i+1) % 16) == 0) {
 			fprintf(stderr, "\n");
@@ -281,7 +281,7 @@ int ptouch_getstatus(ptouch_dev ptdev)
 			fprintf(stderr, _("read error: %s\n"), libusb_error_name(r));
 			return -1;
 		}
-		tries++;
+		++tries;
 		if (tries > 10) {
 			fprintf(stderr, _("timeout while waiting for status response\n"));
 			return -1;
@@ -291,7 +291,7 @@ int ptouch_getstatus(ptouch_dev ptdev)
 		if (buf[0]==0x80 && buf[1]==0x20) {
 			memcpy(ptdev->status, buf, 32);
 			ptdev->tape_width_px=0;
-			for (i=0; tape_info[i].mm > 0; i++) {
+			for (i=0; tape_info[i].mm > 0; ++i) {
 				if (tape_info[i].mm == buf[10]) {
 					ptdev->tape_width_px=tape_info[i].px;
 				}
@@ -359,7 +359,7 @@ int ptouch_sendraster(ptouch_dev ptdev, uint8_t *data, size_t len)
 void ptouch_list_supported()
 {
 	printf("Supported printers (some might have quirks)\n");
-	for (int i=0; ptdevs[i].vid > 0; i++) {
+	for (int i=0; ptdevs[i].vid > 0; ++i) {
 		if ((ptdevs[i].flags & FLAG_PLITE) != FLAG_PLITE) {
 			printf("\t%s\n", ptdevs[i].name);
 		}

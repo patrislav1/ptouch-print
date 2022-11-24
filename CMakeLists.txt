@@ -4,6 +4,8 @@ project(ptouch-print C)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_PREFIX /usr)
 set(CMAKE_C_STANDARD 11)
 
 # Configure required dependencies
@@ -64,10 +66,6 @@ add_custom_target(git-version ALL
 	${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gitversion.cmake
 )
 
-include(GNUInstallDirs)
-set(CMAKE_INSTALL_PREFIX "/usr")
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
-install(TARGETS ptouch-print
-)
-
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ptouch-print.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ptouch-print.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)

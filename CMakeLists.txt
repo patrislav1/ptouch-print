@@ -32,7 +32,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	${GD_LIBRARIES}
 	${LIBUSB_LIBRARIES}
 	${LIBUSB_LINK_LIBRARIES}
-	${Intl_LIBRARY}
+	${Intl_LIBRARIES}
 )
 
 target_sources(${PROJECT_NAME} PRIVATE

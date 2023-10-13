@@ -109,6 +109,18 @@ int print_img(ptouch_dev ptdev, gdImage *im)
 			printf(_("send print information command\n"));
 		}
 	}
+	if ((ptdev->devinfo->flags & FLAG_D460BT_MAGIC) == FLAG_D460BT_MAGIC) {
+		ptouch_send_d460bt_magic(ptdev);
+		if (debug) {
+			printf(_("send PT-D460BT magic commands\n"));
+		}
+	}
+	if ((ptdev->devinfo->flags & FLAG_HAS_PRECUT) == FLAG_HAS_PRECUT) {
+		ptouch_send_precut_cmd(ptdev, 1);
+		if (debug) {
+			printf(_("send precut command\n"));
+		}
+	}
 	for (k=0; k<gdImageSX(im); k+=1) {
 		memset(rasterline, 0, sizeof(rasterline));
 		for (i=0; i<gdImageSY(im); i+=1) {

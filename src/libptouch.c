@@ -71,6 +71,7 @@ struct _pt_dev_info ptdevs[] = {
 	{0x04f9, 0x2065, "PT-P750W (PLite Mode)", 128, 180, FLAG_PLITE},
 	{0x04f9, 0x2073, "PT-D450", 128, 180, FLAG_USE_INFO_CMD},
 	/* Notes about the PT-D450: I'm unsure if print width really is 128px */
+	{0x04f9, 0x20e0, "PT-D460BT", 128, 180, FLAG_P700_INIT|FLAG_USE_INFO_CMD|FLAG_HAS_PRECUT|FLAG_D460BT_MAGIC},
 	{0x04f9, 0x2074, "PT-D600", 128, 180, FLAG_RASTER_PACKBITS},
 	/* PT-D600 was reported to work, but with some quirks (premature
 	   cutting of tape, printing maximum of 73mm length) */
@@ -192,6 +193,21 @@ int ptouch_init(ptouch_dev ptdev)
 	return ptouch_send(ptdev, (uint8_t *)cmd, sizeof(cmd));
 }
 
+/* Sends some magic commands to make prints work on the PT-D460BT.
+   These should go out after info_cmd and right before the raster data. */
+int ptouch_send_d460bt_magic(ptouch_dev ptdev)
+{
+	/* 1B 69 64 {n1} {n2} {n3} {n4} */
+	uint8_t cmd[7];
+	/* n1 and n2 are the length margin/spacing, in px? (uint16_t value, little endian) */
+	/* A value of 0x06 is equivalent to the width margin on 6mm tape */
+	/* The default for P-Touch software is 0x0e */
+	/* n3 must be 0x4D or the print gets corrupted! */
+	/* n4 seems to be ignored or reserved. */
+	memcpy(cmd, "\x1b\x69\x64\x0e\x00\x4d\x00", 7);
+	return ptouch_send(ptdev, (uint8_t *)cmd, sizeof(cmd));
+}
+
 int ptouch_enable_packbits(ptouch_dev ptdev)
 {				/* 4D 00 = disable compression */
 	char cmd[] = "M\x02";	/* 4D 02 = enable packbits compression mode */
@@ -216,6 +232,23 @@ int ptouch_info_cmd(ptouch_dev ptdev, int size_x)
 	cmd[8] = (uint8_t) (size_x >> 8) & 0xff;
 	cmd[9] = (uint8_t) (size_x >> 16) & 0xff;
 	cmd[10] = (uint8_t) (size_x >> 24) & 0xff;
+	if ((ptdev->devinfo->flags & FLAG_D460BT_MAGIC) == FLAG_D460BT_MAGIC) {
+		/* n9 is set to 2 in order to feed the last of the label and properly stop printing. */
+		cmd[11] = (uint8_t) 0x02;
+	}
+	return ptouch_send(ptdev, cmd, sizeof(cmd)-1);
+}
+
+/* If set, printer will prompt to cut blank tape before finishing the print.
+ If not set, printer will print normally with a big blank space on the label.
+ The printer ignores this value if the print is very short. */
+/* 0x80 horizontally mirrors the print */
+int ptouch_send_precut_cmd(ptouch_dev ptdev, int precut)
+{
+	char cmd[] = "\x1b\x69\x4d\x00";
+	if (precut) {
+		cmd[3] = 0x40;
+	}
 	return ptouch_send(ptdev, cmd, sizeof(cmd)-1);
 }
 

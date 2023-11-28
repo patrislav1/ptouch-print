@@ -239,6 +239,16 @@ int needed_width(char *text, char *font, int fsz)
 	return brect[2]-brect[0];
 }
 
+int offset_x(char *text, char *font, int fsz)
+{
+	int brect[8];
+
+	if (gdImageStringFT(NULL, &brect[0], -1, font, fsz, 0.0, 0, 0, text) != NULL) {
+		return -1;
+	}
+	return -brect[0];
+}
+
 gdImage *render_text(char *font, char *line[], int lines, int tape_width)
 {
 	int brect[8];
@@ -307,7 +317,8 @@ gdImage *render_text(char *font, char *line[], int lines, int tape_width)
 		if (debug) {
 			printf("debug: line %i pos=%i ofs=%i\n", i+1, pos, ofs);
 		}
-		if ((p=gdImageStringFT(im, &brect[0], -black, font, fsz, 0.0, 0, pos, line[i])) != NULL) {
+		int off_x = offset_x(line[i], font_file, fsz);
+		if ((p=gdImageStringFT(im, &brect[0], -black, font, fsz, 0.0, off_x, pos, line[i])) != NULL) {
 			printf(_("error in gdImageStringFT: %s\n"), p);
 		}
 	}

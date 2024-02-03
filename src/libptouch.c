@@ -251,7 +251,7 @@ int ptouch_send_precut_cmd(ptouch_dev ptdev, int precut)
 	if (precut) {
 		cmd[3] = 0x40;
 	}
-	return ptouch_send(ptdev, cmd, sizeof(cmd)-1);
+	return ptouch_send(ptdev, (uint8_t *)cmd, sizeof(cmd)-1);
 }
 
 int ptouch_rasterstart(ptouch_dev ptdev)

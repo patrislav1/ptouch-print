@@ -193,14 +193,19 @@ int write_png(gdImage *im, const char *file)
 int get_baselineoffset(char *text, char *font, int fsz)
 {
 	int brect[8];
+	int o_offset;
+	int text_offset;
 
-	if (strpbrk(text, "QgjpqyQµ") == NULL) {	/* if we have none of these */
-		return 0;		/* we don't need an baseline offset */
-	}				/* else we need to calculate it */
+	/* NOTE: This assumes that 'o' is always on the baseline */
 	gdImageStringFT(NULL, &brect[0], -1, font, fsz, 0.0, 0, 0, "o");
-	int tmp=brect[1]-brect[5];
-	gdImageStringFT(NULL, &brect[0], -1, font, fsz, 0.0, 0, 0, "g");
-	return (brect[1]-brect[5])-tmp;
+	o_offset=brect[1];
+	gdImageStringFT(NULL, &brect[0], -1, font, fsz, 0.0, 0, 0, text);
+	text_offset=brect[1];
+	if (debug) {
+		printf(_("debug: o baseline offset - %d\n"), o_offset);
+		printf(_("debug: text baseline offset - %d\n"), text_offset);
+	}
+	return text_offset-o_offset;
 }
 
 /* --------------------------------------------------------------------

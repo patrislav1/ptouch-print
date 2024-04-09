@@ -1,0 +1,2 @@
+# Enable non-root access for ptouch printers
+SUBSYSTEM == "usb", ATTRS{idVendor} == "04f9", ATTRS{idProduct} == "2061", MODE = "0666"
